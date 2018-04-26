@@ -31,7 +31,7 @@ fi
 if [ "$uploadComparison" = true ]; then
     cd RESULT/
     echo "copying $alignmentName"
-    scp -r $alignmentName lpernie@lxplus.cern.ch:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONALIGN/www/tmp/
+    scp -r $alignmentName ${USER}@lxplus.cern.ch:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONALIGN/www/tmp/
      echo "copied"
     cd ..
 fi
