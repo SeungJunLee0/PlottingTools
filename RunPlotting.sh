@@ -4,10 +4,7 @@ xmlfile_ref="Geometries/data_CSC-1100-110001_2018UL_IOV2_CMSSW106_JSON-320377-32
 
 referenceName="IOV3"
 
-correctionName="Displacements from IOV3" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
-#correctionName="Displacements from 2016B geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
-#correctionName="Displacements from 2016E with 3DOF"#
-#correctionName="Displacements from 2016G with 6DOF"#
+correctionName="Displacements from IOV3" 
 
 runComparison=true
 uploadComparison=false
