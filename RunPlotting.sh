@@ -1,27 +1,21 @@
-export alignmentName="mc_DT-1100-111111_CMSSW_8_0_24_GTasym_45M_8TeV_misallFixsigma_03"
+export alignmentName="data_CSC-1100-110001_2018UL_IOV1_CMSSW106_JSON-313041-320377_dataRun2_MuAl_v1_01"
 
-xmlfile_ref="Geometries/muonGeometry_IDEAL_AllZeroes.Ape6x6.StdTags.746p3.DBv2.xml" # reference geometry: initial or IDEAL
-#xmlfile_ref="Geometries/data_DT-1100-111111_SingleMuon_Run2016G_MuAlCalIsolatedMu_278820_280385_8_0_24_Rerecov1_03.xml" # 2016G 6 DOF DT
-#xmlfile_ref="Geometries/data_CSC-1100-110001_SingleMuon_Run2016G_MuAlCalIsolatedMu_278820_280385_8_0_24_Rerecov1_03.xml" #2016G 6 DOF CSC
+xmlfile_ref="Geometries/data_CSC-1100-110001_2018UL_IOV2_CMSSW106_JSON-320377-322603_dataRun2_MuAl_v1_01.xml"
 
-#referenceName="Iter 1 vs Iter 3"
-referenceName="IDEAL_Geo"
-#referenceName="2016B_early"
-#referenceName="2016E_3DOF"
-#referenceName="2016G_6DOF"
+referenceName="IOV3"
 
-correctionName="Displacements from ideal geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
+correctionName="Displacements from IOV3" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
 #correctionName="Displacements from 2016B geometry" # 'corrections" if difference between initial and final geometries; 'displacements' if difference between IDEAL and final geometries
 #correctionName="Displacements from 2016E with 3DOF"#
 #correctionName="Displacements from 2016G with 6DOF"#
 
 runComparison=true
-uploadComparison=true
+uploadComparison=false
 runCorrelation=false
 printCorrelationFactors=true
 
-doDT="true"
-doCSC="false"
+doDT="false"
+doCSC="true"
 
 if [ "$runComparison" = true ]; then
     echo output: OUTPUT/${alignmentName}.out.txt
