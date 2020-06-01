@@ -15,6 +15,12 @@ elif isCSC:
   fillColor = color.GetColor("#3ffa3f")
   lineColor = ROOT.kBlack
   yTitle     = "Number of CSCs"
+elif isGEM:
+#  fillColor = ROOT.kBlue -7
+# fillColor = color.GetColor("#3ffa3f")
+  fillColor = color.GetColor("#8b79ae")
+  lineColor = ROOT.kBlack
+  yTitle     = "Number of GEMs"
 else:
   fillColor = ROOT.kCyan
   lineColor = ROOT.kBlack

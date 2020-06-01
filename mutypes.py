@@ -4,6 +4,25 @@
 # [1]   short label
 # [2]   either list of subsystems or number of chambers
 
+GEM_TYPES = [
+	['GE+','p',[
+		["GE+1",'1',[
+			["GE+1/ALL",'ALL', 36],
+			["GE+1/1",'1', 36]#["ME+1/4",'4', 36]
+			]
+		]],
+		1
+	],
+	['GE-','m',[
+		["GE-1",'1',[
+			#["ME-1/4",'4', 36],
+			["GE-1/1",'1', 36],
+			["GE-1/ALL",'ALL', 36]]
+		]],
+		2
+	]
+];
+
 CSC_TYPES = [
 	['ME+','p',[
 		["ME+4",'4',[

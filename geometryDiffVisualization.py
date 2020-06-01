@@ -12,6 +12,14 @@ def csc_colors(endcap, station, ring, chamber):
 #    return rgb(0.1, 0.5, 0.8)
     return '#3ffa3f'
 
+def gem_colors(endcap, station, ring, chamber):
+#    return rgb(0.1, 0.5, 0.8)
+#    return '#3ffa3f'
+#    real
+    return '#8b79ae'
+
+#    dtcolors
+#    return '#FF9900'
 def draw_station(geom1, geom2, station, filename, length_factor=100., angle_factor=100., colors=dt_colors):
     if station == 4: station_template = load_svg("station4_template.svg")
     else: station_template = load_svg("station_template.svg")
@@ -111,7 +119,7 @@ def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=1
             svgitem[0] += " (length x%g, angle x%g)" % (length_factor, angle_factor)
 
     wheel_template.save(filename)
-
+'''
 def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_factor=100., colors=csc_colors):
     if station == 1: disk_template = load_svg("disk1_template.svg")
     if station in (2, 3, 4): disk_template = load_svg("disk234_template.svg")
@@ -184,6 +192,107 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
 
             newBox = newBox.SVG()
             newBox["style"] = "fill:%s;fill-opacity:0.5;stroke:#000000;stroke-width:1.0;stroke-opacity:1;stroke-dasharray:none" % colors(endcap, station, ring, chamber)
+            newBox["id"] = newBox["id"] + "_moved"
+
+            new_boxes.append(newBox)
+
+    for treeindex, svgitem in disk_template:
+        if isinstance(svgitem, SVG) and svgitem.t == "g" and "id" in svgitem.attr and svgitem["id"] == "chambers":
+            svgitem.append(new_boxes)
+
+        elif isinstance(svgitem, SVG) and "id" in svgitem.attr and svgitem["id"] == "diskx":
+            if endcap == 1: svgitem[0] = "Disk %+d" % station
+            else: svgitem[0] = "Disk %+d" % (-station)
+            svgitem[0] += " (length x%g, angle x%g)" % (length_factor, angle_factor)
+
+    disk_template.save(filename)
+   ''' 
+def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_factor=100., colors=gem_colors):
+    if station == 1: disk_template = load_svg("disk_GEM.svg")
+#    if station in (2, 3, 4): disk_template = load_svg("disk234_template.svg")
+
+#scale_factor = 0.233
+    scale_factor = 0.433
+    
+    new_boxes = SVG("g")
+
+    # center of the template
+    originx = 339.74905
+    originy = 513.50318
+
+    for treeindex, svgitem in disk_template:
+        if isinstance(svgitem, SVG) and "id" in svgitem.attr and svgitem["id"][:3] == "ME_":
+            m = re.match("ME_([0-9]+)_([0-9]+)", svgitem["id"])
+            if m is None: raise Exception
+
+            ring, chamber = int(m.group(1)), int(m.group(2))
+
+            try:
+              xdiff = scale_factor * length_factor * (geom2.gem[endcap, station, ring, chamber].x - geom1.gem[endcap, station, ring, chamber].x) * signConventions["GEM", endcap, station, ring, chamber][0]
+            except KeyError: pass
+            try:
+              ydiff = scale_factor * length_factor * (geom2.gem[endcap, station, ring, chamber].y - geom1.gem[endcap, station, ring, chamber].y) * signConventions["GEM", endcap, station, ring, chamber][1]
+            except KeyError: pass
+            try:
+              phizdiff = -angle_factor * (geom2.gem[endcap, station, ring, chamber].phiz - geom1.gem[endcap, station, ring, chamber].phiz) * signConventions["GEM", endcap, station, ring, chamber][2]
+            except KeyError: pass
+
+            svgitem["style"] = "fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:1.0;stroke-dasharray:1, 1;stroke-dashoffset:0"
+
+            # copy chamber
+            newBox = pathtoPath(svgitem)
+
+            # find the center of the chamber
+            sumx = 0.
+            sumy = 0.
+            sum1 = 0.
+            for i, di in enumerate(newBox.d):
+                print i,di
+                if di[0] == "L":
+                    sumx += di[1]
+                    sumy += di[2]
+                    sum1 += 1.
+            centerx = sumx/sum1
+            centery = sumy/sum1
+#            try:
+#              centerx = sumx/sum1
+#            except ZeroDivisionError: centerx =0.
+#            try:
+#              centery = sumy/sum1
+#            except ZeroDivisionError: centery =0.
+            # global phi of the chamber
+            phipos = atan2(originy-centery, centerx - originx)
+
+            # global shifts of the chamber calculated from local shifts
+            dx = -sin(phipos)*xdiff - cos(phipos)*ydiff
+            dy = -cos(phipos)*xdiff + sin(phipos)*ydiff
+
+            # shift the chamber along global X and Y
+            for i, di in enumerate(newBox.d):
+                if di[0] in ("M", "L"):
+                    di = list(di)
+                    di[1] += dx
+                    di[2] += dy
+                    newBox.d[i] = tuple(di)
+
+            # shift the center of the chamber along global X and Y
+            centerx += dx
+            centery += dy
+
+            for i, di in enumerate(newBox.d):
+                if di[0] in ("M", "L"):
+                    di = list(di)
+                    # global shifts of the chamber calculated from local rotation
+                    dispx = cos(phizdiff) * (di[1] - centerx) - sin(phizdiff) * (di[2] - centery)
+                    dispy = sin(phizdiff) * (di[1] - centerx) + cos(phizdiff) * (di[2] - centery)
+                    # shift the chamber along global X and Y
+                    di[1] = dispx + centerx
+                    di[2] = dispy + centery
+                    newBox.d[i] = tuple(di)
+
+            newBox = newBox.SVG()
+            if ring ==1:
+              newBox["style"] = "fill:%s;fill-opacity:0.5;stroke:#000000;stroke-width:1.0;stroke-opacity:1;stroke-dasharray:none" % colors(endcap, station, ring, chamber)
             newBox["id"] = newBox["id"] + "_moved"
 
             new_boxes.append(newBox)

@@ -6,10 +6,14 @@ if (str(sys.argv[2])=="true"):
 else:
     isDT = False
 if (str(sys.argv[3])=="true"):
+    isGEM = True
+else:
+    isGEM = False
+if (str(sys.argv[6])=="true"):
     isCSC = True
 else:
     isCSC = False
-
+#isGEM = True
 xmlfile_ref        = sys.argv[1]
 xmlfile1           = "Geometries/"+alignmentName+".xml"
 referenceName      = sys.argv[4]

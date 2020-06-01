@@ -1,4 +1,4 @@
-if isDT == False and isCSC == False:
+if isDT == False and isCSC == False and isGEM == False:
   print "Error! AlignmentName", alignmentName, "not found"
   exit(-1)
 
@@ -54,8 +54,16 @@ if isDT:
 #                            CSCs                                               
 # ******************************************************************************
 
-elif isCSC:
+if isCSC:
   execfile("Plot_Corrections_CSC.py")
+
+   
+# ******************************************************************************
+#                            GEMs                                               
+# ******************************************************************************
+
+if isGEM:
+  execfile("Plot_Corrections_GEM.py")
 
 else:
    sys.exit(-1)
@@ -77,6 +85,10 @@ if isDT:
 if isCSC:
   cscGroupTable.PrintHtml(htmlFile,summaryTable,summaryHtmlCaption, 0)
   cscGroupTable.PrintTex(texFile,summaryTable, ("Summary table %s" % alignmentName), ("tab:summary_%s" % alignmentName), 1)
+
+if isGEM:
+  gemGroupTable.PrintHtml(htmlFile,summaryTable,summaryHtmlCaption, 0)
+  gemGroupTable.PrintTex(texFile,summaryTable, ("Summary table %s" % alignmentName), ("tab:summary_%s" % alignmentName), 1)
 
 print str(htmlFile)
 print str(htmlName_d)
