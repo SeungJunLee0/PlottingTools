@@ -117,7 +117,8 @@ def setTDRStyle():
 # For the histo:
   # tdrStyle.SetHistFillColor(1)
   # tdrStyle.SetHistFillStyle(0)
-  tdrStyle.SetHistLineColor(1)
+#tdrStyle.SetHistLineColor(1)
+  tdrStyle.SetHistLineColor(3)
   tdrStyle.SetHistLineStyle(0)
   tdrStyle.SetHistLineWidth(1)
   # tdrStyle.SetLegoInnerR(Float_t rad = 0.5)
@@ -289,9 +290,11 @@ set_palette()
 ## index:               0    1    2    3    4    5    6    7    8    9    10  11  12  13
 
 #phiedgesCSC36 = [pi/180.*(-175. + 10.*i) for i in range(36)]
+phiedgesGEM36 = [pi/180.*(-5. + 10.*i) for i in range(36)]
 #phiedgesCSC18 = [pi/180.*(-175. + 20.*i) for i in range(18)]
 phiedgesCSC36 = [pi/180.*(-5. + 10.*i) for i in range(36)]
 phiedgesCSC18 = [pi/180.*(-5. + 20.*i) for i in range(18)]
+'''
 phiedges = [
    phiedgesCSC36,
    phiedgesCSC36,
@@ -312,6 +315,9 @@ phiedges = [
    [3.0136655290752188, -2.7530905195097337, -2.2922883025568734, -1.9222915077192773, -1.5707963267948966, -1.2193011458705159,
     -0.84930435103291968, -0.38850213408005951, 0.127927124514574, 0.65152597487624719, 1.1322596819239259, 1.5707963267948966, 
     2.0093329716658674, 2.4900666787135459]]
+for CSC
+'''
+phiedges = [phiedgesGEM36]#GEM
 
 def phiedges2c():
   lines = []
@@ -351,13 +357,14 @@ class SawTeethFunction:
 
 
 def stationIndex(name):
-  if ("MB" in name or "ME" in name):
+  if ("MB" in name or "ME" in name or "GE" in name):
     # assume the name is ID
     pa = idToPostalAddress(name)
     if pa is None: return None
-    if pa[0]=="CSC":
+    if pa[0]=="GEM":
       if pa[2]==1 and pa[3]==1: return 0
       if pa[2]==1 and pa[3]==1: return 1
+    if pa[0]=="CSC":
       if pa[2]==1 and pa[3]==1: return 2
       if pa[2]==1 and pa[3]==1: return 3
       if pa[2]==1 and pa[3]==1: return 4
@@ -366,26 +373,29 @@ def stationIndex(name):
       if pa[2]==1 and pa[3]==1: return 7
       if pa[2]==1 and pa[3]==1: return 8
       if pa[2]==1 and pa[3]==1: return 9
+      if pa[2]==1 and pa[3]==1: return 10
+      if pa[2]==1 and pa[3]==1: return 11
     if pa[0]=="DT":
-      if pa[2]==1: return 10
-      if pa[2]==2: return 11
-      if pa[2]==3: return 12
+      if pa[2]==1: return 12
       if pa[2]==2: return 13
+      if pa[2]==3: return 14
+      if pa[2]==2: return 15
   else:
-    if ("mem11" in name or "mep11" in name): return 0
-    if ("mem12" in name or "mep12" in name): return 1
-    if ("mem13" in name or "mep13" in name): return 2
-    if ("mem14" in name or "mep14" in name): return 3
-    if ("mem21" in name or "mep21" in name): return 4
-    if ("mem22" in name or "mep22" in name): return 5
-    if ("mem31" in name or "mep31" in name): return 6
-    if ("mem32" in name or "mep32" in name): return 7
-    if ("mem41" in name or "mep41" in name): return 8
-    if ("mem42" in name or "mep42" in name): return 9
-    if ("st1" in name): return 10
-    if ("st2" in name): return 11
-    if ("st3" in name): return 12
-    if ("st4" in name): return 13
+    if ("gem11" in name or "gep11" in name): return 0
+    if ("mem11" in name or "mep11" in name): return 1
+    if ("mem12" in name or "mep12" in name): return 2
+    if ("mem13" in name or "mep13" in name): return 3
+    if ("mem14" in name or "mep14" in name): return 4
+    if ("mem21" in name or "mep21" in name): return 5
+    if ("mem22" in name or "mep22" in name): return 6
+    if ("mem31" in name or "mep31" in name): return 7
+    if ("mem32" in name or "mep32" in name): return 8
+    if ("mem41" in name or "mep41" in name): return 9
+    if ("mem42" in name or "mep42" in name): return 10
+    if ("st1" in name): return 11
+    if ("st2" in name): return 12
+    if ("st3" in name): return 13
+    if ("st4" in name): return 14
 
 
 
@@ -416,6 +426,26 @@ def philines(name, window, abscissa):
         philine_labels.append(ROOT.TText(-2.9, -0.75*window, "Sector:"))
         philine_labels[-1].Draw()
     if "CSC" in name: # DT labels
+        philine_labels = []
+        edges = edges[:]
+        edges.sort()
+        labels = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10", "11", "12", "13", "14", "15", "16", "17", "18",
+                  "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36"]
+        #else: 
+        #    labels = [" 8", " 9", "10", "11", "12", " 1", " 2", " 3", " 4", " 5", " 6"]
+        #    edges = edges[1:]
+        for phi, label in zip(edges, labels):
+            littlebit = 0.
+            #if label in (" 7", " 9", "14", "10", "11"): littlebit = 0.05
+            philine_labels.append(ROOT.TText(phi+littlebit, -0.9*window, label))
+            philine_labels[-1].SetTextFont(42)
+            philine_labels[-1].SetTextSize(0.028)
+            philine_labels[-1].Draw()
+        philine_labels.append(ROOT.TText(0, -0.78*window, "Chamber:"))
+        philine_labels[-1].SetTextSize(0.035)
+        philine_labels[-1].Draw()
+
+    if "GEM" in name: # DT labels
         philine_labels = []
         edges = edges[:]
         edges.sort()
@@ -509,7 +539,7 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                         db2.xx = db2.xy = db2.xz = db2.yx = db2.yy = db2.yz = db2.zx = db2.zy = db2.zz = 0.
                     else:
                         db2 = database2.dt[r1.postal_address[1:]]
-            else:
+            elif r1.postal_address[0] == "CSC":
                 if r1.postal_address[1:] in database1.csc:
                     found = True
                     db1 = database1.csc[r1.postal_address[1:]]
@@ -519,6 +549,16 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                         db2.xx = db2.xy = db2.xz = db2.yx = db2.yy = db2.yz = db2.zx = db2.zy = db2.zz = 0.
                     else:
                         db2 = database2.csc[r1.postal_address[1:]]
+            else:
+                if r1.postal_address[1:] in database1.gem:
+                    found = True
+                    db1 = database1.gem[r1.postal_address[1:]]
+                    if database2 is None:
+                        db2 = GEMAlignable()
+                        db2.x = db2.y = db2.z = db2.phix = db2.phiy = db2.phiz = 0.
+                        db2.xx = db2.xy = db2.xz = db2.yx = db2.yy = db2.yz = db2.zx = db2.zy = db2.zz = 0.
+                    else:
+                        db2 = database2.gem[r1.postal_address[1:]]
 
             if found and r1.status == "PASS" and r2.status == "PASS":
                 
@@ -685,7 +725,7 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
                         db2.xx = db2.xy = db2.xz = db2.yx = db2.yy = db2.yz = db2.zx = db2.zy = db2.zz = 0.
                     else:
                         db2 = database2.dt[r1.postal_address[1:]]
-            else:
+            elif r1.postal_address[0] == "CSC":
                 if r1.postal_address[1:] in database1.csc:
                     found = True
                     db1 = database1.csc[r1.postal_address[1:]]
@@ -695,6 +735,17 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
                         db2.xx = db2.xy = db2.xz = db2.yx = db2.yy = db2.yz = db2.zx = db2.zy = db2.zz = 0.
                     else:
                         db2 = database2.csc[r1.postal_address[1:]]
+
+            else:
+                if r1.postal_address[1:] in database1.gem:
+                    found = True
+                    db1 = database1.gem[r1.postal_address[1:]]
+                    if database2 is None:
+                        db2 = GEMAlignable()
+                        db2.x = db2.y = db2.z = db2.phix = db2.phiy = db2.phiz = 0.
+                        db2.xx = db2.xy = db2.xz = db2.yx = db2.yy = db2.yz = db2.zx = db2.zy = db2.zz = 0.
+                    else:
+                        db2 = database2.gem[r1.postal_address[1:]]
 
             if found and r1.status == "PASS" and r2.status == "PASS":
                 okay = False
@@ -814,6 +865,15 @@ def idToPostalAddress(id):
     if pa[3]<1 or pa[3]>4 or (pa[2]>1 and pa[3]>2): return None
     if pa[4]<1 or pa[4]>36 or (pa[2]>1 and pa[3]==1 and pa[4]>18): return None
     return pa
+  elif id[0:2]=="GE":
+    if id[2]=="+": ec=1
+    elif id[2]=="-": ec=2
+    else: return None
+    pa = ("GEM", ec, int(id[3]), int(id[5]), int(id[7:9]))
+    if pa[2]<1 or pa[2]>4: return None
+    if pa[3]<1 or pa[3]>4 or (pa[2]>1 and pa[3]>2): return None
+    if pa[4]<1 or pa[4]>36 or (pa[2]>1 and pa[3]==1 and pa[4]>18): return None
+    return pa
   else: return None
 
 
@@ -827,6 +887,11 @@ def postalAddressToId(postal_address):
     endcap, station, ring, chamber = postal_address[1:]
     if endcap != 1: station = -1 * abs(station)
     return "ME%+d/%d/%02d" % (station, ring, chamber)
+
+  elif postal_address[0] == "GEM":
+    endcap, station, ring, chamber = postal_address[1:]
+    if endcap != 1: station = -1 * abs(station)
+    return "GE%+d/%d/%02d" % (station, ring, chamber)
 
 
 def nameToId(name):
@@ -849,6 +914,14 @@ def nameToId(name):
     ring = name[4]
     chamber = name[6:8]
     return "ME%s%s/%s/%s" % (endcap, station, ring, chamber)
+  elif name[0:2] == "GE":
+    if name[2]=="p": endcap = "+"
+    elif name[2]=="m": endcap = "-"
+    else: return ""
+    station = name[3]
+    ring = name[4]
+    chamber = name[6:8]
+    return "GE%s%s/%s/%s" % (endcap, station, ring, chamber)
   return None
 
 
@@ -936,6 +1009,50 @@ def availableCellsCSC(reports):
           if r.status == "NOFIT": continue
           cscs.append(endcap[0]+station[1]+'/'+ring[1]+'/'+schamber)
   return cscs
+
+def availableCellsGEM(reports):
+  gems = []
+  # GEM station & ring 
+  for endcap in GEM_TYPES:
+    for station in endcap[2]:
+      for ring in station[2]:
+        if ring[1]=="ALL": continue
+        #label = "GEMvsphi_me%s%s%s" % (endcap[1], station[1], ring[1])
+        gems.append("%s%s/%s" % (endcap[0], station[1],ring[1]))
+  # GEM station and chamber
+  for endcap in GEM_TYPES:
+    for station in endcap[2]:
+      for ring in station[2]:
+        if ring[1]!="ALL": continue
+        for chamber in range(1,ring[2]+1):
+          #label = "CSCvsr_me%s%sch%02d" % (endcap[1], station[1], chamber)
+          gems.append("%s%s/ALL/%02d" % (endcap[0], station[1],chamber))
+  # GEM chambers
+  for endcap in GEM_TYPES:
+    for station in endcap[2]:
+      for ring in station[2]:
+        if ring[1]=="ALL": continue
+        for chamber in range(1,ring[2]+1):
+          # exclude non instrumented ME4/2 
+          if station[1]=="4" and ring[1]=="2":
+            if endcap[1]=="m": continue
+            if chamber<9 or chamber>13: continue
+          schamber = "%02d" % chamber
+          label = "GE%s%s%s_%s" % (endcap[1], station[1], ring[1], schamber)
+          if len(reports)==0:
+            # no reports case: do not include chambers 
+            #gems.append(endcap[0]+station[1]+'/'+ring[1]+'/'+schamber)
+            continue
+          found = False
+          for r in reports:
+            if r.name == label:
+              found = True
+              break
+          if not found: continue
+          if r.status == "TOOFEWHITS" and r.posNum+r.negNum==0: continue
+          if r.status == "NOFIT": continue
+          gems.append(endcap[0]+station[1]+'/'+ring[1]+'/'+schamber)
+  return gems
 
 
 DQM_SEVERITY = [
@@ -1066,6 +1183,8 @@ def doTestsForMapPlots(cells):
     scope = "zzz"
     if c[0:2]=="MB": scope = "DT"
     if c[0:2]=="ME": scope = "CSC"
+    if c[0:2]=="GE": scope = "GEM"
+	
     if scope == "zzz":
       print "strange cell ID: ", c
       return None
@@ -1136,13 +1255,16 @@ def doTests(reports, pic_ids, fname_base, fname_dqm, run_name):
   # find available baseline
   dts = []
   cscs = []
+  gems = []
   if len(reports)>0:
     dts  = availableCellsDT(reports)
     cscs = availableCellsCSC(reports)
+    gems = availableCellsGEM(reports)
   elif len(pic_ids)>0:
     dts  = [id for id in pic_ids if 'MB' in id]
     cscs = [id for id in pic_ids if 'ME' in id]
-  mulist = ['Run: '+run_name,['ALL',['MU']],['DT',dts],['CSC',cscs]]
+    gems = [id for id in pic_ids if 'GE' in id]
+  mulist = ['Run: '+run_name,['ALL',['MU']],['DT',dts],['CSC',cscs],['GEM',gems]]
   ff = open(fname_base,mode="w")
   print >>ff, "var MU_LIST = ["
   json.dump(mulist,ff)
@@ -1151,10 +1273,12 @@ def doTests(reports, pic_ids, fname_base, fname_dqm, run_name):
   
   doTestsForReport(dts,reports)
   doTestsForReport(cscs,reports)
+  doTestsForReport(gems,reports)
   
   loadTestResultsMap(run_name)
   doTestsForMapPlots(dts)
   doTestsForMapPlots(cscs)
+  doTestsForMapPlots(gems)
   
   writeDQMReport(fname_dqm, run_name)
 
@@ -1432,6 +1556,9 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     if "CSC" in name:
         if param == "x": hist.SetYTitle("r#phi residual (mm)")
         if param == "dxdz": hist.SetYTitle("d(r#phi)/dz residual (mrad)")
+    if "GEM" in name:
+        if param == "x": hist.SetYTitle("r#phi residual (mm)")
+        if param == "dxdz": hist.SetYTitle("d(r#phi)/dz residual (mrad)")
     hist.SetMarkerColor(ROOT.kBlack)
     hist.SetLineColor(ROOT.kBlack)
     hist.Draw()
@@ -1449,6 +1576,8 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     if fitsine and "vsphi" in name:
         global fitsine_const, fitsine_sin, fitsine_cos, fitsine_chi2, fitsine_ndf
         if 'CSC' in name:
+          f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi/180.*5., pi*(2.-5./180.))
+        elif 'GEM' in name:
           f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi/180.*5., pi*(2.-5./180.))
         else:
           f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
@@ -1468,6 +1597,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
         global fitsine_ttext, fitsine_etext
         text_xposition = -1.
         if 'CSC' in name: text_xposition = 2.
+        if 'GEM' in name: text_xposition = 2.
         fitsine_ttext = ROOT.TLatex(text_xposition, 0.8*window, 
                 "%+.3f %+.3f sin#phi %+.3f cos#phi" % (fitsine_const[0], fitsine_sin[0], fitsine_cos[0]))
         fitsine_ttext.SetTextColor(ROOT.kRed)
@@ -1506,6 +1636,10 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
             tline1 = ROOT.TLine(-pi/180.*5., 0, pi*(2.-5./180.), 0); tline1.Draw()
             tline2 = ROOT.TLine(-pi/180.*5., -window, pi*(2.-5./180.), -window); tline2.SetLineWidth(2); tline2.Draw()
             tline3 = ROOT.TLine(-pi/180.*5., window, pi*(2.-5./180.), window); tline3.Draw()
+          elif 'GEM' in name:
+            tline1 = ROOT.TLine(-pi/180.*5., 0, pi*(2.-5./180.), 0); tline1.Draw()
+            tline2 = ROOT.TLine(-pi/180.*5., -window, pi*(2.-5./180.), -window); tline2.SetLineWidth(2); tline2.Draw()
+            tline3 = ROOT.TLine(-pi/180.*5., window, pi*(2.-5./180.), window); tline3.Draw()
           else:
             tline1 = ROOT.TLine(-pi, 0, pi, 0); tline1.Draw()
             tline2 = ROOT.TLine(-pi, -window, pi, -window); tline2.SetLineWidth(2); tline2.Draw()
@@ -1526,6 +1660,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
             tline3 = ROOT.TLine(abscissa[0], window, abscissa[1], window); tline3.Draw()
     elif "vsr" in name:
         if "mem1" in name or "mep1" in name and not widebins: rlines(1, window, abscissa)
+        if "gem1" in name or "gep1" in name and not widebins: rlines(1, window, abscissa)
         if "mem2" in name or "mep2" in name and not widebins: rlines(2, window, abscissa)
         if "mem3" in name or "mep3" in name and not widebins: rlines(3, window, abscissa)
         if "mem4" in name or "mep4" in name and not widebins: rlines(4, window, abscissa)
@@ -1628,6 +1763,20 @@ def mapNameToId(name):
     ring = 'ALL'
     chamber = name[pch+2:pch+4]
     return "ME%s%s/%s/%s" % (endcap, station, ring, chamber)
+  elif "GEM" in name:
+    p = name.find('ge')
+    if p<0: return None
+    if name[p+2]=="p": endcap = "+"
+    elif name[p+2]=="m": endcap = "-"
+    else: return None
+    station = name[p+3]
+    pch = name.find('ch')
+    if pch<0:
+        ring = name[p+4]
+        return "GE%s%s/%s" % (endcap, station, ring)
+    ring = 'ALL'
+    chamber = name[pch+2:pch+4]
+    return "GE%s%s/%s/%s" % (endcap, station, ring, chamber)
   return None
 
 
@@ -1851,6 +2000,10 @@ def getname(r):
         if endcap != 1: station = -1 * abs(station)
         return "CSC ME%d/%d chamber %d" % (station, ring, chamber)
 
+    elif r.postal_address[0] == "GEM":
+        endcap, station, ring, chamber = r.postal_address[1:]
+        if endcap != 1: station = -1 * abs(station)
+        return "GEM GE%d/%d chamber %d" % (station, ring, chamber)
 ddt=[0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 def clearDDT():
     for i in range(0,15):
@@ -1957,6 +2110,11 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_alphax.SetXTitle("Local d(r#phi)/dz residual (mrad)")
         chamber_alphax.SetYTitle("Local r#phi residual (mm)")
 
+    if name[0:2] == "GE":
+        chamber_x.SetXTitle("Local r#phi residual (mm)")
+        chamber_dxdz.SetXTitle("Local d(r#phi)/dz residual (mrad)")
+        chamber_alphax.SetXTitle("Local d(r#phi)/dz residual (mrad)")
+        chamber_alphax.SetYTitle("Local r#phi residual (mm)")
     t4 = time.time()
     ddt[3] = 1./ddt[0]*((ddt[0]-1)*ddt[3] + t4-t3)
 
@@ -2558,6 +2716,9 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
             label1 = ROOT.TPaveLabel(0, 0, 1, 1, "r#phi residuals (mm)")
             label2 = ROOT.TPaveLabel(0, 0, 1, 1, "d(r#phi)/dz residuals (mrad)")
 
+        if name[0:2] == "GE":
+            label1 = ROOT.TPaveLabel(0, 0, 1, 1, "r#phi residuals (mm)")
+            label2 = ROOT.TPaveLabel(0, 0, 1, 1, "d(r#phi)/dz residuals (mrad)")
         for l in label1, label2, label3, label4, label5, label6, label9:
             l.SetBorderSize(0)
             l.SetFillColor(ROOT.kWhite)
@@ -2723,6 +2884,43 @@ def segdiff(tfiles, component, pair, **args):
         while (phi < -pi*5./180.): phi += 2.*pi
         while (phi > pi*(2.-5./180.)): phi -= 2.*pi
 
+    elif component[0:3] == "gem":
+        endcap = args["endcap"]
+        if endcap=="m":
+            endcapnum=2
+            endcapsign="-"
+        elif endcap=="p":
+            endcapnum=1
+            endcapsign="+"
+        else: raise Exception
+        
+        ring = args["ring"]
+        if ring>2 or ring<1: raise Exception
+        station1 = int(str(pair)[0])
+        station2 = int(str(pair)[1])
+        if   ring==1: ringname="inner"
+        elif ring==2: ringname="outer"
+        else: raise Exception
+        
+        chamber = args["chamber"]
+        if (ring==1 and chamber>18) or (ring==2 and chamber>36): raise Exception
+        
+        profname = "gem%s_%s_%s_%02d_%s" % (ringname,component[4:], endcap, chamber, str(pair))
+        posname = "pos" + profname
+        negname = "neg" + profname
+        #print profname
+
+        station1 = int(str(pair)[0])
+        station2 = int(str(pair)[1])
+        phi1 = signConventions["GEM", endcapnum, station1, ring, chamber][4]
+        phi2 = signConventions["GEM", endcapnum, station2, ring, chamber][4]
+        if abs(phi1 - phi2) > 1.:
+            if phi1 > phi2: phi1 -= 2.*pi
+            else: phi1 += 2.*pi
+        phi = (phi1 + phi2) / 2.
+        while (phi < -pi*5./180.): phi += 2.*pi
+        while (phi > pi*(2.-5./180.)): phi -= 2.*pi
+
     else: raise Exception
 
     if "window" in args: window = args["window"]
@@ -2779,6 +2977,16 @@ def segdiff(tfiles, component, pair, **args):
         tmpneg.SetXTitle("#Deltad(r#phi)/dz^{local} (mrad)")
         f.SetParNames("#Deltad(r#phi)/dz^{local}_{0}", "Slope")
     
+    if component == "gem_resid":
+        tmpprof.SetYTitle("#Delta(r#phi)^{local} (mm)")
+        tmppos.SetXTitle("#Delta(r#phi)^{local} (mm)")
+        tmpneg.SetXTitle("#Delta(r#phi)^{local} (mm)")
+        f.SetParNames("#Delta(r#phi)^{local}_{0}", "Slope")
+    if component == "gem_slope":
+        tmpprof.SetYTitle("#Deltad(r#phi)/dz^{local} (mrad)")
+        tmppos.SetXTitle("#Deltad(r#phi)/dz^{local} (mrad)")
+        tmpneg.SetXTitle("#Deltad(r#phi)/dz^{local} (mrad)")
+        f.SetParNames("#Deltad(r#phi)/dz^{local}_{0}", "Slope")
     tmpprof.GetXaxis().CenterTitle()
     tmpprof.GetYaxis().CenterTitle()
     tmppos.GetXaxis().CenterTitle()
@@ -2787,6 +2995,8 @@ def segdiff(tfiles, component, pair, **args):
         tmpprof.SetTitle("MB%d - MB%d, wheel %d, sector %02d" % (station1, station2, int(wheel), int(sector)))
     elif component[0:3] == "csc":
         tmpprof.SetTitle("ME%d - ME%d, for ME%s%d/%d/%d" % (station1, station2, endcapsign, station2, ring, chamber))
+    elif component[0:3] == "gem":
+        tmpprof.SetTitle("GE%d - GE%d, for GE%s%d/%d/%d" % (station1, station2, endcapsign, station2, ring, chamber))
     else: raise Exception
 
     tmppos.SetTitle("Positive muons")
@@ -3041,6 +3251,110 @@ def segdiffvsphicsc(tfiles, component, pair, window=5., **args):
     htemp.SetXTitle("Average #phi of pair (rad)")
     if component == "csc_resid": htemp.SetYTitle("#Delta(r#phi)^{local} (mm)")
     if component == "csc_slope": htemp.SetYTitle("#Deltad(r#phi)/dz^{local} (mrad)")
+    htemp.GetXaxis().CenterTitle()
+    htemp.GetYaxis().CenterTitle()
+    htemp.GetYaxis().SetTitleOffset(0.75)
+
+    c1.Clear()
+    htemp.Draw()
+    if len(gtemp_1_phi) > 0:
+        gtemp_1.Draw("p")
+        gtemp2_1.Draw("p")
+    if len(gtemp_2_phi) > 0:
+        gtemp_2.Draw("p")
+        gtemp2_2.Draw("p")
+
+    tlegend = ROOT.TLegend(0.5, 0.72, 0.9, 0.92)
+    tlegend.SetBorderSize(0)
+    tlegend.SetFillColor(ROOT.kWhite)
+    if len(gtemp_1_phi) > 0:
+        tlegend.AddEntry(gtemp_1, "ring 1 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_1_val), stdev(gtemp_1_val)), "pl")
+    if len(gtemp_2_phi) > 0:
+        tlegend.AddEntry(gtemp_2, "ring 2 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_2_val), stdev(gtemp_2_val)), "pl")
+    #if len(gtemp_12_phi) > 0:
+    #    tlegend.AddEntry(gtemp_12, "total mean: %4.2f, total RMS: %4.2f" % \
+    #                               (mean(gtemp_12_val + gtemp_23_val + gtemp_34_val), 
+    #                               stdev(gtemp_12_val + gtemp_23_val + gtemp_34_val)), "")
+    tlegend.Draw()
+def segdiffvsphigem(tfiles, component, pair, window=5., **args):
+    tdrStyle.SetOptTitle(1)
+    tdrStyle.SetTitleBorderSize(1)
+    tdrStyle.SetTitleFontSize(0.05)
+
+    if not component[0:3] == "gem": Exception
+    
+    endcap = args["endcap"]
+    if endcap=="m":
+      endcapnum=2
+      endcapsign="-"
+    elif endcap=="p":
+      endcapnum=1
+      endcapsign="+"
+    else: raise Exception
+    
+    station1 = int(str(pair)[0])
+    station2 = int(str(pair)[1])
+    if not station2-station1==1: raise Exception
+    
+    rings = [1,2]
+    if station2==4: rings = [1]
+    
+    
+    global htemp, gtemp_1, gtemp2_1, gtemp_2, gtemp2_2, tlegend
+    htemp = ROOT.TH1F("htemp", "", 1, -pi*5./180., pi*(2.-5./180.))
+    gtemp_1_phi, gtemp_1_val, gtemp_1_err, gtemp_1_val2, gtemp_1_err2 = [], [], [], [], []
+    gtemp_2_phi, gtemp_2_val, gtemp_2_err, gtemp_2_val2, gtemp_2_err2 = [], [], [], [], []
+    
+    for ring in rings:
+      chambers = xrange(1,37)
+      if ring == 1: chambers = xrange(1,19)
+      
+      for chamber in chambers:
+        phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, pair, endcap=endcap, ring=ring, chamber=chamber)
+        if fit1 == 0 and fit2 == 0 and fit3 == 0:
+          if ring==1:
+            gtemp_1_phi.append(phi)
+            gtemp_1_val.append(val)
+            gtemp_1_err.append(err)
+            gtemp_1_val2.append(val2)
+            gtemp_1_err2.append(err2)
+          if ring==2:
+            gtemp_2_phi.append(phi)
+            gtemp_2_val.append(val)
+            gtemp_2_err.append(err)
+            gtemp_2_val2.append(val2)
+            gtemp_2_err2.append(err2)
+
+    #print "len(gtemp_12_phi) ", len(gtemp_12_phi)
+    #print "len(gtemp_23_phi) ",len(gtemp_23_phi)
+    #print "len(gtemp_34_phi) ",len(gtemp_34_phi)
+    if len(gtemp_1_phi) > 0:
+        gtemp_1 = ROOT.TGraphErrors(len(gtemp_1_phi), array.array("d", gtemp_1_phi), array.array("d", gtemp_1_val), 
+                                     array.array("d", [0.] * len(gtemp_1_phi)), array.array("d", gtemp_1_err))
+        gtemp2_1 = ROOT.TGraphErrors(len(gtemp_1_phi), array.array("d", gtemp_1_phi), array.array("d", gtemp_1_val2), 
+                                      array.array("d", [0.] * len(gtemp_1_phi)), array.array("d", gtemp_1_err2))
+    if len(gtemp_2_phi) > 0:
+        gtemp_2 = ROOT.TGraphErrors(len(gtemp_2_phi), array.array("d", gtemp_2_phi), array.array("d", gtemp_2_val), 
+                                     array.array("d", [0.] * len(gtemp_2_phi)), array.array("d", gtemp_2_err))
+        gtemp2_2 = ROOT.TGraphErrors(len(gtemp_2_phi), array.array("d", gtemp_2_phi), array.array("d", gtemp_2_val2), 
+                                      array.array("d", [0.] * len(gtemp_2_phi)), array.array("d", gtemp_2_err2))
+
+    if len(gtemp_1_phi) > 0:
+        gtemp_1.SetMarkerStyle(20);  gtemp_1.SetMarkerSize(1.);  
+        gtemp_1.SetMarkerColor(ROOT.kBlue);  gtemp_1.SetLineColor(ROOT.kBlue)
+        gtemp2_1.SetMarkerStyle(24); gtemp2_1.SetMarkerSize(1.); 
+        gtemp2_1.SetMarkerColor(ROOT.kBlue); gtemp2_1.SetLineColor(ROOT.kBlue)
+    if len(gtemp_2_phi) > 0:
+        gtemp_2.SetMarkerStyle(21);  gtemp_2.SetMarkerSize(1.);  
+        gtemp_2.SetMarkerColor(ROOT.kRed);  gtemp_2.SetLineColor(ROOT.kRed)
+        gtemp2_2.SetMarkerStyle(25); gtemp2_2.SetMarkerSize(1.); 
+        gtemp2_2.SetMarkerColor(ROOT.kRed); gtemp2_2.SetLineColor(ROOT.kRed)
+
+    htemp.SetTitle("GE%s%d - GE%s%d" % (endcapsign,station2,endcapsign,station1))
+    htemp.SetAxisRange(-window, window, "Y")
+    htemp.SetXTitle("Average #phi of pair (rad)")
+    if component == "gem_resid": htemp.SetYTitle("#Delta(r#phi)^{local} (mm)")
+    if component == "gem_slope": htemp.SetYTitle("#Deltad(r#phi)/dz^{local} (mrad)")
     htemp.GetXaxis().CenterTitle()
     htemp.GetYaxis().CenterTitle()
     htemp.GetYaxis().SetTitleOffset(0.75)

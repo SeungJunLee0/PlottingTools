@@ -30,7 +30,6 @@ def dtorder(a, b):
     elif asuperlayer != bsuperlayer:
       superlayerorder = [0, 1, 3, 2]
       return cmp(superlayerorder.index(asuperlayer), superlayerorder.index(bsuperlayer))
-
   return cmp(a, b)
 
 def cscorder(a, b):
@@ -50,6 +49,22 @@ def cscorder(a, b):
 
   return cmp(a, b)
 
+def gemorder(a, b):
+  for ai, bi, name in zip(list(a) + [0]*(5 - len(a)), \
+                          list(b) + [0]*(5 - len(b)), \
+                          ("endcap", "station", "ring", "chamber", "layer")):
+    exec("a%s = %d" % (name, ai))
+    exec("b%s = %d" % (name, bi))
+
+  if astation == 1 and aring == 3: return cmp(a, b)
+
+  elif aendcap == bendcap and astation == bstation and aring == bring and achamber != bchamber:
+    if achamber == 0: return -1 # upper hierarchy comes first
+    if bchamber == 0: return  1 # upper hierarchy comes first
+    if achamber % 2 == 1 and bchamber % 2 == 0: return -1  # odds come first
+    elif achamber % 2 == 0 and bchamber % 2 == 1: return 1 # evens come after
+#noting problem
+  return cmp(a, b)
 # External libraries (standard in Python >= 2.4, at least)
 import xml.sax
 
@@ -91,6 +106,21 @@ class CSCAlignable:
         except AttributeError: pass
         return tuple(i)
 
+class GEMAlignable:
+    def index(self):
+        i = []
+        try: i.append(self.endcap)
+        except AttributeError: pass
+        try: i.append(self.station)
+        except AttributeError: pass
+        try: i.append(self.ring)
+        except AttributeError: pass
+        try: i.append(self.chamber)
+        except AttributeError: pass
+        try: i.append(self.layer)
+        except AttributeError: pass
+        return tuple(i)
+
 class Operation:
     def __init__(self):
         self.chambers = []
@@ -102,6 +132,7 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
     def __init__(self, stream=None):
         self.dt = {}
         self.csc = {}
+        self.gem = {}
         self._operation = None
 
         if stream is not None:
@@ -156,6 +187,12 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
                     alignable.__dict__[name] = int(attrib[name])
             self._operation.chambers.append(alignable)
 
+        elif tag[0:3] == "GEM":
+            alignable = GEMAlignable()
+            for name in "endcap", "station", "ring", "chamber", "layer":
+                if name in attrib:
+                    alignable.__dict__[name] = int(attrib[name])
+            self._operation.chambers.append(alignable)
     # what to do when you get to an </endelement>
     def endElement(self, tag):
         if tag == "operation":
@@ -165,7 +202,7 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
                 c.__dict__.update(self._operation.setape)
                 if isinstance(c, DTAlignable): self.dt[c.index()] = c
                 elif isinstance(c, CSCAlignable): self.csc[c.index()] = c
-
+                elif isinstance(c, GEMAlignable): self.gem[c.index()] = c
     # writing back to xml
     def xml(self, stream=None, precision=8):
       if precision == None: format = "%g"
@@ -186,6 +223,8 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
       csckeys = self.csc.keys()
       csckeys.sort(cscorder)
 
+      gemkeys = self.gem.keys()
+      gemkeys.sort(gemorder)
       def f(number): return format % number
 
       def position_ape(ali, attributes):
@@ -223,6 +262,21 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
         elif len(key) == 5: level = "CSCLayer "
 
         ali = self.csc[key]
+        attributes = " ".join(["%s=\"%d\"" % (name, value) for name, value in zip(("endcap", "station", "ring", "chamber", "layer"), key)])
+        position_ape(ali, attributes)
+
+        writeline("</operation>\n\n")
+
+      for key in gemkeys:
+        writeline("<operation>\n")
+
+        if len(key) == 1: level = "GEMEndcap "
+        elif len(key) == 2: level = "GEMStation "
+        elif len(key) == 3: level = "GEMRing "
+        elif len(key) == 4: level = "GEMChamber "
+        elif len(key) == 5: level = "GEMLayer "
+
+        ali = self.gem[key]
         attributes = " ".join(["%s=\"%d\"" % (name, value) for name, value in zip(("endcap", "station", "ring", "chamber", "layer"), key)])
         position_ape(ali, attributes)
 

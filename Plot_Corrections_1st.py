@@ -11,6 +11,9 @@ from Class_DtGroupTable import *
 from Class_CscTable import *
 from Class_CscGroupTable import *
 
+from Class_GemTable import *
+from Class_GemGroupTable import *
+
 from Histo_FitAndDraw import *
 
 try:  
@@ -21,4 +24,4 @@ except KeyError:
 
 print "Process", alignmentName
 
-isDT, isCSC = False, False
+isDT, isCSC, isGEM = False, False, False
